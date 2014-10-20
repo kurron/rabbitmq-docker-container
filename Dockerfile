@@ -3,6 +3,9 @@ FROM ubuntu:14.04
 
 MAINTAINER Ron Kurr <kurr@kurron.org>
 
+# fetch the latest software updates
+RUN apt-get --quiet update
+
 # install wget
 RUN apt-get --quiet --yes install wget
 
