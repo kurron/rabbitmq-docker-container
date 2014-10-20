@@ -1,40 +1,41 @@
-# Trusty 
+# Trusty
 FROM ubuntu:14.04
 
 MAINTAINER Ron Kurr <kurr@kurron.org>
 
-# install wget 
-RUN apt-get --quiet --yes install wget 
+# install wget
+RUN apt-get --quiet --yes install wget
 
 # download the repository key
-RUN wget --quiet --output-document=/tmp/rabbitmq-signing-key-public.asc http://www.rabbitmq.com/rabbitmq-signing-key-public.asc 
+RUN wget --quiet --output-document=/tmp/rabbitmq-signing-key-public.asc http://www.rabbitmq.com/rabbitmq-signing-key-public.asc
+
 # import the RabbitMQ public key
-RUN apt-key add /tmp/rabbitmq-signing-key-public.asc 
+RUN apt-key add /tmp/rabbitmq-signing-key-public.asc
 
 # add the RabbitMQ repository
-RUN echo 'deb http://www.rabbitmq.com/debian/ testing main' | tee /etc/apt/sources.list.d/rabbitmq.list 
+RUN echo 'deb http://www.rabbitmq.com/debian/ testing main' | tee /etc/apt/sources.list.d/rabbitmq.list
 
-# fetch the latest software updates
+# fetch the latest software update
 RUN apt-get --quiet update
 
-# install RabbitMQ 
-RUN apt-get --quiet --yes install rabbitmq-server 
+# install RabbitMQ
+RUN apt-get --quiet --yes install rabbitmq-server
 
-# install plug-ins 
+# install plug-ins
 RUN rabbitmq-plugins enable rabbitmq_management
-RUN rabbitmq-plugins enable rabbitmq_consistent_hash_exchange 
-RUN rabbitmq-plugins enable rabbitmq_federation 
-RUN rabbitmq-plugins enable rabbitmq_shovel 
-RUN rabbitmq-plugins enable rabbitmq_stomp 
-RUN rabbitmq-plugins enable rabbitmq_tracing 
-RUN rabbitmq-plugins enable rabbitmq_mqtt 
-RUN rabbitmq-plugins enable rabbitmq_web_stomp 
-RUN rabbitmq-plugins list 
+RUN rabbitmq-plugins enable rabbitmq_consistent_hash_exchange
+RUN rabbitmq-plugins enable rabbitmq_federation
+RUN rabbitmq-plugins enable rabbitmq_shovel
+RUN rabbitmq-plugins enable rabbitmq_stomp
+RUN rabbitmq-plugins enable rabbitmq_tracing
+RUN rabbitmq-plugins enable rabbitmq_mqtt
+RUN rabbitmq-plugins enable rabbitmq_web_stomp
+RUN rabbitmq-plugins list
 
 # allow access from non-localhost clients
 RUN echo '[{rabbit, [{loopback_users, []}]}].' > /etc/rabbitmq/rabbitmq.config
 
-# Add custom launch script 
+# Add custom launch script
 ADD rabbitmq-start.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/rabbitmq-start.sh
 
@@ -48,12 +49,12 @@ VOLUME ["/data/log", "/data/mnesia"]
 # Define working directory.
 WORKDIR /data
 
-# expose both the amqp and admin ports 
+# expose both the amqp and admin ports
 EXPOSE 5672 15672
 
-# run RabbitMQ each time the container is started 
+# run RabbitMQ each time the container is started
 ENTRYPOINT /usr/local/bin/rabbitmq-start.sh
 
 # we need this to keep the container from exiting when we detach
-CMD tail -F /var/log/dmesg 
+CMD tail -F /var/log/dmesg
 
